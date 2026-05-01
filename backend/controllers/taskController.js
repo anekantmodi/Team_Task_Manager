@@ -69,7 +69,8 @@ exports.updateTask = async (req, res) => {
 
     // Members can only update status
     if (req.user.role === 'member') {
-      if (task.assignedTo.toString() !== req.user.id) {
+      const isAssigned = task.assignedTo.some(id => id.toString() === req.user.id);
+      if (!isAssigned) {
         return res.status(403).json({ message: 'Not authorized to update this task' });
       }
       

@@ -15,10 +15,21 @@ const Projects = () => {
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [memberEmail, setMemberEmail] = useState('');
   const [selectedProjectId, setSelectedProjectId] = useState(null);
+  const [allUsers, setAllUsers] = useState([]);
 
   useEffect(() => {
     fetchProjects();
-  }, []);
+    if (user?.role === 'admin') fetchAllUsers();
+  }, [user]);
+
+  const fetchAllUsers = async () => {
+    try {
+      const res = await api.get('/auth/users');
+      setAllUsers(res.data.data);
+    } catch (error) {
+      console.error("Error fetching users", error);
+    }
+  };
 
   const fetchProjects = async () => {
     try {
@@ -156,12 +167,18 @@ const Projects = () => {
             <h3 style={{ marginBottom: '24px' }}>Add Member to Project</h3>
             <form onSubmit={handleAddMember}>
               <div className="form-group">
-                <label className="form-label">Member Email</label>
-                <input 
-                  type="email" required
+                <label className="form-label">Select Member</label>
+                <select 
+                  required
                   value={memberEmail} onChange={e => setMemberEmail(e.target.value)}
                   className="form-input"
-                />
+                  style={{ appearance: 'none' }}
+                >
+                  <option value="">Select a user...</option>
+                  {allUsers.map(u => (
+                    <option key={u._id} value={u.email}>{u.name} ({u.email})</option>
+                  ))}
+                </select>
               </div>
               <div className="modal-actions">
                 <button type="button" onClick={() => setShowAddMemberModal(false)} className="btn-secondary">Cancel</button>

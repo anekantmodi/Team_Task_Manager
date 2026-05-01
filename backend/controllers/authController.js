@@ -84,3 +84,18 @@ exports.getMe = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+// @desc    Get all users
+// @route   GET /api/auth/users
+// @access  Private/Admin
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({}).select('-password');
+    res.status(200).json({
+      success: true,
+      data: users,
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
