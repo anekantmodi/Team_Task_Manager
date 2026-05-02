@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import { Plus, CheckSquare, Clock, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -105,82 +106,108 @@ const Tasks = () => {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div>
-      <div className="page-header">
+    <motion.div initial="hidden" animate="show" variants={containerVariants}>
+      <motion.div variants={itemVariants} className="page-header">
         <div>
           <h2>Tasks</h2>
           <p className="text-sm mt-1">Manage and track your tasks</p>
         </div>
         {user?.role === 'admin' && (
-          <button 
+          <motion.button 
+            whileHover={{ scale: 0.98 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setShowCreateModal(true)}
             className="btn-primary-sm flex items-center gap-2"
           >
             <Plus size={18} /> New Task
-          </button>
+          </motion.button>
         )}
-      </div>
+      </motion.div>
 
-      <div className="tasks-list">
-        {tasks.map((task) => (
-          <div key={task._id} className="glass task-item">
-            <div className="task-info-wrapper">
-              <div className={`task-icon-container ${task.status === 'completed' ? 'task-icon-done' : 'task-icon-pending'}`}>
-                <CheckSquare size={20} />
-              </div>
-              <div>
-                <h3 style={{ marginBottom: '4px' }}>{task.title}</h3>
-                <p className="text-sm text-muted">{task.description}</p>
-                <div className="task-meta">
-                  <span className="task-project-tag">
-                    {task.projectId?.title || 'Unknown Project'}
-                  </span>
-                  {task.dueDate && (
-                    <span className="task-date">
-                      <Clock size={14} /> {new Date(task.dueDate).toLocaleDateString()}
+      <motion.div variants={itemVariants} className="premium-glass bento-item" style={{ padding: '24px' }}>
+        <div className="horizontal-list">
+          {tasks.map((task) => (
+            <motion.div 
+              key={task._id} 
+              whileHover={{ scale: 1.01 }}
+              className="horizontal-list-item"
+            >
+              <div className="list-item-main">
+                <div className="list-item-icon" style={{ background: task.status === 'completed' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255, 255, 255, 0.05)' }}>
+                  <CheckSquare size={20} color={task.status === 'completed' ? '#10b981' : '#a1a1aa'} />
+                </div>
+                <div>
+                  <h3 style={{ marginBottom: '4px', fontSize: '16px' }}>{task.title}</h3>
+                  <div className="task-meta">
+                    <span className="task-project-tag">
+                      {task.projectId?.title || 'Unknown Project'}
                     </span>
-                  )}
+                    {task.dueDate && (
+                      <span className="task-date">
+                        <Clock size={14} /> {new Date(task.dueDate).toLocaleDateString()}
+                      </span>
+                    )}
+                    <span className="task-assignee-label ml-4">
+                      Assigned to: <span className="task-assignee-name">{task.assignedTo && task.assignedTo.length > 0 ? task.assignedTo.map(u => u.name).join(', ') : 'Unassigned'}</span>
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="task-actions">
-              <div className="task-assignee">
-                <p className="task-assignee-label">Assigned to</p>
-                <p className="task-assignee-name">{task.assignedTo && task.assignedTo.length > 0 ? task.assignedTo.map(u => u.name).join(', ') : 'Unassigned'}</p>
+              <div className="list-item-meta">
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  {user?.role === 'admin' && (
+                    <button onClick={() => handleEditClick(task)} className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }}>Edit</button>
+                  )}
+                  <select 
+                    value={task.status}
+                    onChange={(e) => handleStatusChange(task._id, e.target.value)}
+                    className={`status-select ${getStatusClass(task.status)}`}
+                  >
+                    <option value="todo">To Do</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
               </div>
-              
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                {user?.role === 'admin' && (
-                  <button onClick={() => handleEditClick(task)} className="btn-secondary" style={{ padding: '4px 8px', fontSize: '12px' }}>Edit</button>
-                )}
-                <select 
-                  value={task.status}
-                  onChange={(e) => handleStatusChange(task._id, e.target.value)}
-                  className={`status-select ${getStatusClass(task.status)}`}
-                >
-                  <option value="todo">To Do</option>
-                  <option value="in-progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                </select>
-              </div>
+            </motion.div>
+          ))}
+          {tasks.length === 0 && (
+            <div className="empty-state">
+              <AlertCircle size={48} />
+              <h3 style={{ marginBottom: '4px' }}>No tasks found</h3>
+              <p className="text-sm">You don't have any tasks assigned yet.</p>
             </div>
-          </div>
-        ))}
-        {tasks.length === 0 && (
-          <div className="glass empty-state">
-            <AlertCircle size={48} />
-            <h3 style={{ marginBottom: '4px' }}>No tasks found</h3>
-            <p className="text-sm">You don't have any tasks assigned yet.</p>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      </motion.div>
 
       {/* Create Task Modal */}
       {showCreateModal && (
-        <div className="modal-overlay">
-          <div className="glass modal-content">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="modal-overlay"
+        >
+          <motion.div 
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            className="premium-glass modal-content"
+          >
             <h3 style={{ marginBottom: '24px' }}>Create New Task</h3>
             <form onSubmit={handleCreateTask}>
               <div className="form-group">
@@ -247,14 +274,22 @@ const Tasks = () => {
                 <button type="submit" className="btn-primary-sm">Create</button>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
 
       {/* Edit Task Modal */}
       {showEditModal && editingTask && (
-        <div className="modal-overlay">
-          <div className="glass modal-content">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="modal-overlay"
+        >
+          <motion.div 
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            className="premium-glass modal-content"
+          >
             <h3 style={{ marginBottom: '24px' }}>Edit Task</h3>
             <form onSubmit={handleUpdateTask}>
               <div className="form-group">
@@ -322,10 +357,10 @@ const Tasks = () => {
                 <button type="submit" className="btn-primary-sm">Save Changes</button>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

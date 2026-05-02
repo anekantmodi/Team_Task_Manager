@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import { Plus, Users, FolderKanban } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -69,28 +70,49 @@ const Projects = () => {
 
   if (loading) return <div className="text-muted">Loading projects...</div>;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div>
-      <div className="page-header">
+    <motion.div initial="hidden" animate="show" variants={containerVariants}>
+      <motion.div variants={itemVariants} className="page-header">
         <div>
           <h2>Projects</h2>
           <p className="text-sm mt-1">Manage your team's projects</p>
         </div>
         {user?.role === 'admin' && (
-          <button 
+          <motion.button 
+            whileHover={{ scale: 0.98 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setShowCreateModal(true)}
             className="btn-primary-sm flex items-center gap-2"
           >
             <Plus size={18} /> New Project
-          </button>
+          </motion.button>
         )}
-      </div>
+      </motion.div>
 
-      <div className="projects-grid">
+      <div className="bento-grid">
         {projects.map((project) => (
-          <div key={project._id} className="glass project-card card">
+          <motion.div 
+            key={project._id} 
+            variants={itemVariants}
+            whileHover={{ y: -4, scale: 1.02 }}
+            className="premium-glass bento-item bento-col-4 card"
+            style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
+          >
             <div className="project-header">
-              <div className="project-icon">
+              <div className="project-icon" style={{ background: 'rgba(212, 212, 216, 0.1)', color: '#D4D4D8' }}>
                 <FolderKanban size={24} />
               </div>
               {user?.role === 'admin' && (
@@ -105,7 +127,7 @@ const Projects = () => {
             </div>
             
             <h3 style={{ marginBottom: '8px' }}>{project.title}</h3>
-            <p className="project-desc">{project.description}</p>
+            <p className="project-desc" style={{ flex: 1 }}>{project.description}</p>
             
             <div className="project-footer">
               <div className="text-sm text-muted">
@@ -124,14 +146,22 @@ const Projects = () => {
                 )}
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 
       {/* Create Project Modal */}
       {showCreateModal && (
-        <div className="modal-overlay">
-          <div className="glass modal-content">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="modal-overlay"
+        >
+          <motion.div 
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            className="premium-glass modal-content"
+          >
             <h3 style={{ marginBottom: '24px' }}>Create New Project</h3>
             <form onSubmit={handleCreateProject}>
               <div className="form-group">
@@ -156,14 +186,22 @@ const Projects = () => {
                 <button type="submit" className="btn-primary-sm">Create</button>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
 
       {/* Add Member Modal */}
       {showAddMemberModal && (
-        <div className="modal-overlay">
-          <div className="glass modal-content">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="modal-overlay"
+        >
+          <motion.div 
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            className="premium-glass modal-content"
+          >
             <h3 style={{ marginBottom: '24px' }}>Add Member to Project</h3>
             <form onSubmit={handleAddMember}>
               <div className="form-group">
@@ -185,10 +223,10 @@ const Projects = () => {
                 <button type="submit" className="btn-primary-sm">Add</button>
               </div>
             </form>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

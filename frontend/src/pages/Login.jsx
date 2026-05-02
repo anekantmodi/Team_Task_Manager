@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -24,7 +25,12 @@ const Login = () => {
       <div className="auth-bg-blob1"></div>
       <div className="auth-bg-blob2"></div>
       
-      <div className="auth-card glass">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 24 }}
+        className="auth-card premium-glass"
+      >
         <div className="auth-header">
           <div className="auth-logo">TM</div>
           <h2>Welcome Back</h2>
@@ -56,15 +62,20 @@ const Login = () => {
               required
             />
           </div>
-          <button type="submit" className="btn-primary">
+          <motion.button 
+            whileHover={{ scale: 0.98 }}
+            whileTap={{ scale: 0.95 }}
+            type="submit" 
+            className="btn-primary"
+          >
             Sign In
-          </button>
+          </motion.button>
         </form>
         
         <div className="auth-footer">
           Don't have an account? <Link to="/register" className="auth-link">Create one</Link>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

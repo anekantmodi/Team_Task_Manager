@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -26,12 +27,17 @@ const Register = () => {
 
   return (
     <div className="auth-container">
-      <div className="auth-bg-blob1" style={{ background: 'rgba(168, 85, 247, 0.2)' }}></div>
+      <div className="auth-bg-blob1" style={{ background: 'rgba(212, 212, 216, 0.2)' }}></div>
       <div className="auth-bg-blob2"></div>
       
-      <div className="auth-card glass">
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 24 }}
+        className="auth-card premium-glass"
+      >
         <div className="auth-header">
-          <div className="auth-logo" style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)', boxShadow: '0 0 20px rgba(99, 102, 241, 0.6)' }}>TM</div>
+          <div className="auth-logo">TM</div>
           <h2>Create Account</h2>
           <p>Join TaskMaster today</p>
         </div>
@@ -85,15 +91,20 @@ const Register = () => {
               <option value="admin">Admin</option>
             </select>
           </div>
-          <button type="submit" className="btn-primary" style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)' }}>
+          <motion.button 
+            whileHover={{ scale: 0.98 }}
+            whileTap={{ scale: 0.95 }}
+            type="submit" 
+            className="btn-primary"
+          >
             Sign Up
-          </button>
+          </motion.button>
         </form>
         
         <div className="auth-footer">
           Already have an account? <Link to="/login" className="auth-link">Log in</Link>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
